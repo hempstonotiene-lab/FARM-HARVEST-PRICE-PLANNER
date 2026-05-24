@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS sms_outbox (
     farmer_id UUID REFERENCES farmers(id) ON DELETE SET NULL,
     phone_number VARCHAR(25) NOT NULL,
     message TEXT NOT NULL,
+    trigger VARCHAR(50),
+    provider VARCHAR(50),
     mode VARCHAR(20) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

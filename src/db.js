@@ -121,9 +121,14 @@ export async function initDb(config) {
       farmer_id UUID,
       phone_number TEXT NOT NULL,
       message TEXT NOT NULL,
+      trigger TEXT,
+      provider TEXT,
       mode TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    ALTER TABLE sms_outbox ADD COLUMN IF NOT EXISTS trigger TEXT;
+    ALTER TABLE sms_outbox ADD COLUMN IF NOT EXISTS provider TEXT;
   `;
 
   try {

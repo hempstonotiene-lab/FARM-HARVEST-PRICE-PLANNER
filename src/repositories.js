@@ -341,6 +341,127 @@ export async function deletePlanting(config, plantingId, farmerId) {
   return result.rows[0]?.id || null;
 }
 
+export async function getSmsOutboxHistory(config, filters = {}, limit = 100, offset = 0) {
+  if (isJsonMode(config)) {
+    return readJsonStorage(({ smsOutbox }) => {
+      let filtered = smsOutbox;
+      
+      // Apply filters
+      if (filters.farmerId) {
+        filtered = filtered.filter(record => record.farmerId === filters.farmerId);
+      }
+      if (filters.trigger) {
+        filtered = filtered.filter(record => record.trigger === filters.trigger);
+      }
+      if (filters.mode) {
+        filtered = filtered.filter(record => record.mode === filters.mode);
+      }
+      
+      // Sort by created_at descending
+      const sorted = [...filtered].sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      
+      // Apply pagination
+      const paginated = sorted.slice(offset, offset + limit);
+      return paginated.map(record => ({
+        ...record,
+        createdAt: new Date(record.createdAt).toISOString()
+      }));
+    });
+  }
+
+  // Build SQL query with filters
+  let queryStr = `
+    SELECT 
+      id, 
+      farmer_id, 
+      phone_number, 
+      message, 
+      trigger, 
+      provider, 
+      mode, 
+      created_at
+    FROM sms_outbox
+  `;
+  
+  const params = [];
+  let paramIndex = 1;
+  
+  if (filters.farmerId || filters.trigger || filters.mode) {
+    queryStr += " WHERE ";
+    const conditions = [];
+    
+    if (filters.farmerId) {
+      conditions.push(`farmer_id = $${paramIndex++}`);
+      params.push(filters.farmerId);
+    }
+    if (filters.trigger) {
+      conditions.push(`trigger = $${paramIndex++}`);
+      params.push(filters.trigger);
+    }
+    if (filters.mode) {
+      conditions.push(`mode = $${paramIndex++}`);
+      params.push(filters.mode);
+    }
+    
+    queryStr += conditions.join(" AND ");
+  }
+  
+  queryStr += ` ORDER BY created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+  params.push(limit, offset);
+  
+  const result = await query(config, queryStr, params);
+  return result.rows.map(row => ({
+    ...row,
+    createdAt: row.createdAt.toISOString()
+  }));
+}
+
+export async function getFarmerPhoneNumbers(config, filters = {}) {
+  if (isJsonMode(config)) {
+    return readJsonStorage(({ farmers }) => {
+      let filtered = farmers;
+      
+      // Apply filters
+      if (filters.countyId) {
+        filtered = filtered.filter(farmer => farmer.countyId === filters.countyId);
+      }
+      // Note: We don't have crop_id in farmers table, would need to join with plantings
+      
+      return filtered.map(farmer => ({
+        id: farmer.id,
+        name: farmer.name,
+        phoneNumber: farmer.phoneNumber,
+        countyId: farmer.countyId
+      }));
+    });
+  }
+
+  // Build SQL query with filters
+  let queryStr = `
+    SELECT 
+      id, 
+      name, 
+      phone_number as phoneNumber, 
+      county_id as countyId
+    FROM farmers
+  `;
+  
+  const params = [];
+  let paramIndex = 1;
+  
+  if (filters.countyId) {
+    queryStr += ` WHERE county_id = $${paramIndex++}`;
+    params.push(filters.countyId);
+  }
+  
+  queryStr += " ORDER BY name";
+  
+  const result = await query(config, queryStr, params);
+  return result.rows;
+}
+
 export async function addSmsOutboxRecord(config, record) {
   if (isJsonMode(config)) {
     await withJsonStorage((state) => {
@@ -352,8 +473,17 @@ export async function addSmsOutboxRecord(config, record) {
 
   await query(
     config,
-    `INSERT INTO sms_outbox (id, farmer_id, phone_number, message, mode, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [record.id, record.farmerId || null, record.phoneNumber, record.message, record.mode, record.createdAt]
+    `INSERT INTO sms_outbox (id, farmer_id, phone_number, message, trigger, provider, mode, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [
+      record.id,
+      record.farmerId || null,
+      record.phoneNumber,
+      record.message,
+      record.trigger || null,
+      record.provider || null,
+      record.mode,
+      record.createdAt
+    ]
   );
 }

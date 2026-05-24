@@ -17,13 +17,13 @@ const localeKey = "farmPlannerLocale";
 
 const translations = {
     en: {
-        pageTitle: "Smart Farming Assistant",
+        pageTitle: "FARM HARVEST & PRICE PLANNER",
         heroEyebrow: "Mobile agricultural decision support",
         heroShortcutGuest: "Start here",
         heroShortcutSignedIn: "Open planner",
         heroTag: "Harvest prediction, market timing, weather insight, and SMS support",
         heroText:
-            "Smart Farming Assistant turns the proposal into a working planner that combines crop records, county market prices, weather signals, and SMS-ready recommendations so farmers can decide when to harvest and when to sell.",
+            "FARM HARVEST & PRICE PLANNER combines crop records, county market prices, weather signals, and SMS-ready recommendations so farmers can decide when to harvest and when to sell.",
         heroPrimaryAction: "Create account",
         heroSecondaryAction: "Sign in",
         heroSupportNote:
@@ -59,7 +59,7 @@ const translations = {
         featureAccessCopy:
             "The experience now highlights bilingual onboarding, GPS-assisted county selection, local dataset fallback, and SMS-ready alerts so support reaches more farmers.",
         workflowEyebrow: "Proposal workflow",
-        workflowTitle: "How the Smart Farming Assistant works",
+        workflowTitle: "How the Farm Harvest & Price Planner works",
         workflowInputTitle: "1. Farmer input",
         workflowInputCopy: "Capture crop, planting date, location, and profile details through a simple mobile-first form.",
         workflowEngineTitle: "2. Prediction engine",
@@ -125,13 +125,13 @@ const translations = {
         latestRecordTemplate: "{crop} in {county}, planted on {date}."
     },
     sw: {
-        pageTitle: "Msaidizi wa Kilimo Mahiri",
+        pageTitle: "FARM HARVEST & PRICE PLANNER",
         heroEyebrow: "Msaada wa maamuzi ya kilimo kwa simu",
         heroShortcutGuest: "Anza hapa",
         heroShortcutSignedIn: "Fungua mpangaji",
         heroTag: "Utabiri wa mavuno, muda wa soko, hali ya hewa, na usaidizi wa SMS",
         heroText:
-            "Msaidizi wa Kilimo Mahiri hubadilisha mapendekezo ya mradi kuwa mpangaji unaofanya kazi unaounganisha rekodi za mazao, bei za kaunti, taarifa za hali ya hewa, na mapendekezo yanayotumwa kwa SMS ili mkulima ajue wakati wa kuvuna na kuuza.",
+            "FARM HARVEST & PRICE PLANNER huunganisha rekodi za mazao, bei za kaunti, taarifa za hali ya hewa, na mapendekezo yanayotumwa kwa SMS ili mkulima ajue wakati wa kuvuna na kuuza.",
         heroPrimaryAction: "Fungua akaunti",
         heroSecondaryAction: "Ingia",
         heroSupportNote:
@@ -167,7 +167,7 @@ const translations = {
         featureAccessCopy:
             "Uzoefu huu unaonyesha mwanzo wa lugha mbili, uteuzi wa kaunti kwa GPS, data ya ndani ya akiba, na arifa za SMS ili kuwafikia wakulima wengi zaidi.",
         workflowEyebrow: "Mtiririko wa proposal",
-        workflowTitle: "Jinsi Msaidizi wa Kilimo Mahiri unavyofanya kazi",
+        workflowTitle: "Jinsi Farm Harvest & Price Planner inavyofanya kazi",
         workflowInputTitle: "1. Taarifa za mkulima",
         workflowInputCopy: "Kusanya zao, tarehe ya kupanda, eneo, na taarifa za profaili kupitia fomu rahisi ya simu.",
         workflowEngineTitle: "2. Injini ya utabiri",

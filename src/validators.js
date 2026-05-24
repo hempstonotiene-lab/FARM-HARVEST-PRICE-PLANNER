@@ -11,6 +11,7 @@ import {
   isValidPlantingDate,
   normalizePhoneNumber
 } from "./validation-rules.js";
+import { smsTriggerList, smsTriggerIds } from "./sms-service.js";
 
 export { normalizePhoneNumber };
 
@@ -111,6 +112,26 @@ export function validatePlantingInput(payload, availableCropIds, availableCounty
       plantingDate,
       farmSizeAcres: Number(farmSizeAcres.toFixed(2)),
       notes
+    }
+  };
+}
+
+export function validateSmsAlertInput(payload) {
+  const plantingId = cleanText(payload.plantingId);
+  const trigger = cleanText(payload.trigger || smsTriggerIds.manualAdminSend);
+
+  if (!plantingId) {
+    return { error: "Planting record is required for SMS alerts." };
+  }
+
+  if (!smsTriggerList.includes(trigger)) {
+    return { error: "Please select a valid SMS alert trigger." };
+  }
+
+  return {
+    value: {
+      plantingId,
+      trigger
     }
   };
 }

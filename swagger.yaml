@@ -1,0 +1,432 @@
+openapi: 3.0.0
+info:
+  title: Smart Farming Assistant SMS Alert System API
+  version: 1.0.0
+  description: API for sending SMS alerts to farmers for harvest predictions, market prices, weather warnings, and selling recommendations
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.farmassistant.example.com
+    description: Production server
+paths:
+  /api/sms/harvest/{farmerId}/{plantingId}:
+    post:
+      summary: Send harvest prediction readiness alert
+      description: Send an SMS alert to a farmer indicating their crop is ready for harvest
+      parameters:
+        - name: farmerId
+          in: path
+          required: true
+          description: ID of the farmer
+          schema:
+            type: string
+        - name: plantingId
+          in: path
+          required: true
+          description: ID of the planting record
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Harvest alert sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Harvest alert sent successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      messageId:
+                        type: string
+                        example: 123e4567-e89b-12d3-a456-426614174000
+        '500':
+          description: Failed to send harvest alert
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Failed to send harvest alert
+                  error:
+                    type: string
+                    example: Farmer phone number not available
+  /api/sms/market/{farmerId}/{plantingId}:
+    post:
+      summary: Send market price increase alert
+      description: Send an SMS alert to a farmer about favorable market prices for their crop
+      parameters:
+        - name: farmerId
+          in: path
+          required: true
+          description: ID of the farmer
+          schema:
+            type: string
+        - name: plantingId
+          in: path
+          required: true
+          description: ID of the planting record
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Market alert sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Market alert sent successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      messageId:
+                        type: string
+                        example: 123e4567-e89b-12d3-a456-426614174000
+        '500':
+          description: Failed to send market alert
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Failed to send market alert
+                  error:
+                    type: string
+                    example: Failed to send SMS: Insufficient credits
+  /api/sms/weather/{farmerId}/{plantingId}:
+    post:
+      summary: Send weather warning alert
+      description: Send an SMS alert to a farmer about adverse weather conditions
+      parameters:
+        - name: farmerId
+          in: path
+          required: true
+          description: ID of the farmer
+          schema:
+            type: string
+        - name: plantingId
+          in: path
+          required: true
+          description: ID of the planting record
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Weather alert sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Weather alert sent successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      messageId:
+                        type: string
+                        example: 123e4567-e89b-12d3-a456-426614174000
+        '500':
+          description: Failed to send weather alert
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Failed to send weather alert
+                  error:
+                    type: string
+                    example: Failed to send SMS: Network error
+  /api/sms/selling/{farmerId}/{plantingId}:
+    post:
+      summary: Send best selling time recommendation
+      description: Send an SMS alert to a farmer with recommendations on the best time to sell their crop
+      parameters:
+        - name: farmerId
+          in: path
+          required: true
+          description: ID of the farmer
+          schema:
+            type: string
+        - name: plantingId
+          in: path
+          required: true
+          description: ID of the planting record
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Selling recommendation sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Selling recommendation sent successfully
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      messageId:
+                        type: string
+                        example: 123e4567-e89b-12d3-a456-426614174000
+        '500':
+          description: Failed to send selling recommendation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Failed to send selling recommendation
+                  error:
+                    type: string
+                    example: Invalid forecast data
+  /api/sms/bulk:
+    post:
+      summary: Send bulk SMS notifications
+      description: Send SMS alerts to multiple farmers based on filters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alertType:
+                  type: string
+                  enum: [harvest, market, weather, selling]
+                  description: Type of alert to send
+                filters:
+                  type: object
+                  description: Filters to select farmers (e.g., countyId)
+                  properties:
+                    countyId:
+                      type: string
+                      description: Filter farmers by county
+      responses:
+        '200':
+          description: Bulk SMS sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Bulk SMS completed: 5 sent, 0 failed
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 5
+                      successful:
+                        type: integer
+                        example: 5
+                      failed:
+                        type: integer
+                        example: 0
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            farmerId:
+                              type: string
+                            phoneNumber:
+                              type: string
+                            success:
+                              type: boolean
+                            messageId:
+                              type: string
+                            error:
+                              type: string
+        '400':
+          description: Invalid alert type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Invalid alert type. Must be one of: harvest, market, weather, selling
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Internal server error
+                  error:
+                    type: string
+                    example: Database connection failed
+  /api/sms/history:
+    get:
+      summary: Get SMS delivery history
+      description: Retrieve a paginated list of sent SMS messages with optional filters
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of records to return
+          required: false
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          description: Number of records to skip
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: farmerId
+          in: query
+          description: Filter by farmer ID
+          required: false
+          schema:
+            type: string
+        - name: trigger
+          in: query
+          description: Filter by SMS trigger type
+          required: false
+          schema:
+            type: string
+        - name: mode
+          in: query
+          description: Filter by delivery mode (success, failed, etc.)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SMS history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: SMS history retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 123e4567-e89b-12d3-a456-426614174000
+                        farmerId:
+                          type: string
+                          example: farmer_123
+                        phoneNumber:
+                          type: string
+                          example: +254700000000
+                        message:
+                          type: string
+                          example: Hello John, your maize crop is ready for harvest...
+                        trigger:
+                          type: string
+                          example: harvest_prediction_ready
+                        provider:
+                          type: string
+                          example: africas_talking
+                        mode:
+                          type: string
+                          example: success
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: 2026-05-24T10:30:00.000Z
+        '500':
+          description: Failed to retrieve SMS history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Failed to retrieve SMS history
+                  error:
+                    type: string
+                    example: Database query failed
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerAuth: []

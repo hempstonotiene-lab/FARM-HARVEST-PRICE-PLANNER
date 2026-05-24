@@ -27,6 +27,10 @@ import {
 } from "./src/validators.js";
 import { getWeatherSummary } from "./src/weather-service.js";
 import { sendSmsAlert } from "./src/sms-service.js";
+import smsRoutes from "./src/sms/smsRoutes.js";
+import smsScheduler from "./src/sms/smsScheduler.js";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 import { rateLimit } from "express-rate-limit";
 
 const __filename = fileURLToPath(
@@ -100,6 +104,10 @@ function buildSmsMessage(farmer, planting, forecast) {
     return `${farmer.name}, ${forecast.crop.name} harvest window is ${start}-${end}. Best sell week: W+${Math.max(forecast.bestSellWeek, 0)}. Risk: ${forecast.riskLabel}.`;
 }
 
+// Initialize SMS cron jobs
+smsScheduler.setupSmsCronJobs();
+
+// Health check endpoint
 app.get(
     "/api/health",
     asyncHandler(async(_req, res) => {
@@ -352,6 +360,13 @@ app.post(
         res.json({ result });
     })
 );
+
+// SMS notification routes
+app.use("/api/sms", smsRoutes);
+
+// Swagger documentation
+const swaggerDocument = YAML.load("./swagger.yaml");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("*", (_req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));

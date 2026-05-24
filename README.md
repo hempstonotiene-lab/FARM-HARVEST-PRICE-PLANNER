@@ -1,6 +1,6 @@
-# Smart Farming Assistant
+# FARM HARVEST & PRICE PLANNER
 
-Smart Farming Assistant is a Node.js full-stack project with PostgreSQL storage, authentication, farmer profiles, planting history, backend forecasting, Kenya-focused crop and county datasets, weather integration, and Africa's Talking SMS support.
+FARM HARVEST & PRICE PLANNER is a Node.js full-stack project with PostgreSQL storage, authentication, farmer profiles, planting history, backend forecasting, Kenya-focused crop and county datasets, weather integration, and Africa's Talking SMS support.
 
 ## What is included
 
