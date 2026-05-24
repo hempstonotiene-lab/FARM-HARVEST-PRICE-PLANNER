@@ -1,0 +1,14 @@
+Thumbs.db
+Desktop.ini
+.DS_Store
+_brief/
+_brief.zip
+node_modules/
+.env
+server.log
+storage/
+word/
+docProps/
+_rels/
+[Content_Types].xml
+FINAL  PROJECT.docx

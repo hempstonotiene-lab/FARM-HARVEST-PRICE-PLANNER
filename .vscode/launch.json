@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Start backend server",
+            "program": "${workspaceFolder}\\server.js",
+            "cwd": "${workspaceFolder}",
+            "envFile": "${workspaceFolder}\\.env",
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "msedge",
+            "request": "launch",
+            "name": "Open app in browser",
+            "url": "http://localhost:3000"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Run full app",
+            "configurations": [
+                "Start backend server",
+                "Open app in browser"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Smart Farming Assistant helps farmers predict harvest windows, compare market prices, review weather signals, and share updates through app and SMS support." />
+    <title>Smart Farming Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+
+<body>
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <div class="page-shell">
+        <header class="hero" id="home">
+            <nav class="topbar">
+                <div>
+                    <p class="eyebrow" data-i18n="heroEyebrow">Mobile agricultural decision support</p>
+                    <h1>Smart Farming Assistant</h1>
+                </div>
+                <div class="topbar-actions">
+                    <div class="locale-switch" aria-label="Language switcher">
+                        <button type="button" class="locale-button is-active" data-set-locale="en">EN</button>
+                        <button type="button" class="locale-button" data-set-locale="sw">SW</button>
+                    </div>
+                    <a class="ghost-link" id="heroShortcut" href="#auth" data-i18n="heroShortcutGuest">Start here</a>
+                </div>
+            </nav>
+
+            <div class="hero-grid">
+                <section class="hero-copy" id="heroCopy">
+                    <span class="tag" data-i18n="heroTag">Harvest prediction, market timing, weather insight, and SMS support</span>
+                    <p class="hero-text" data-i18n="heroText">
+                        Smart Farming Assistant turns the proposal into a working planner that combines crop records, county market prices, weather signals, and SMS-ready recommendations so farmers can decide when to harvest and when to sell.
+                    </p>
+                    <div class="hero-actions">
+                        <a class="primary-button" href="#registerForm" data-i18n="heroPrimaryAction">Create account</a>
+                        <a class="secondary-button" href="#loginForm" data-i18n="heroSecondaryAction">Sign in</a>
+                    </div>
+                    <p class="hero-support-note" data-i18n="heroSupportNote">
+                        Built around the proposal goals: personalized predictions, simple charts, weather-aware recommendations, and inclusive SMS fallback for farmers without smartphones.
+                    </p>
+                </section>
+
+                <section class="hero-panel glass-card">
+                    <div class="panel-header">
+                        <p data-i18n="quickSummary">Quick summary</p>
+                        <span id="authStatus">Not signed in</span>
+                    </div>
+                    <div class="metric-grid">
+                        <article>
+                            <strong id="hero-harvest-window">Waiting</strong>
+                            <span data-i18n="metricCropMaturity">Crop maturity</span>
+                        </article>
+                        <article>
+                            <strong id="hero-best-price">KES 0</strong>
+                            <span data-i18n="metricBestPrice">Best expected price</span>
+                        </article>
+                        <article>
+                            <strong id="hero-risk-level">Unknown</strong>
+                            <span data-i18n="metricWeatherRisk">Weather risk</span>
+                        </article>
+                        <article>
+                            <strong id="hero-sms-state">Sign in</strong>
+                            <span data-i18n="metricSmsSupport">SMS support</span>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <nav class="section-nav" aria-label="Smart Farming Assistant sections">
+                <a href="#auth" data-i18n="navAccess">Access</a>
+                <a href="#proposalFeatures" data-i18n="navCapabilities">Capabilities</a>
+                <a href="#proposalWorkflow" data-i18n="navWorkflow">Workflow</a>
+                <a href="#insights" data-i18n="navInsights">Insights</a>
+            </nav>
+        </header>
+
+        <main id="main">
+            <p class="global-message" id="globalMessage" data-error="false" aria-live="polite" data-i18n="globalReadyMessage">
+                Ready to plan. Register or sign in to unlock full forecasting and SMS alerts.
+            </p>
+
+            <section class="quick-strip is-hidden" aria-label="Planner overview">
+                <article class="glass-card quick-stat">
+                    <span data-i18n="overviewAuthLabel">Auth state</span>
+                    <strong id="overviewAuthState">Guest mode</strong>
+                    <p data-i18n="overviewAuthCopy">Shows whether a farmer account is currently signed in.</p>
+                </article>
+                <article class="glass-card quick-stat">
+                    <span data-i18n="overviewRecordsLabel">Saved records</span>
+                    <strong id="overviewRecordCount">0</strong>
+                    <p data-i18n="overviewRecordsCopy">Total planting records available for forecasting.</p>
+                </article>
+                <article class="glass-card quick-stat">
+                    <span data-i18n="overviewCropLabel">Latest crop</span>
+                    <strong id="overviewLatestCrop">No records yet</strong>
+                    <p data-i18n="overviewCropCopy">Most recent crop from your saved planting history.</p>
+                </article>
+                <article class="glass-card quick-stat">
+                    <span data-i18n="overviewDatasetLabel">Dataset source</span>
+                    <strong id="overviewDatasetSource">Loading</strong>
+                    <p data-i18n="overviewDatasetCopy">Current source for regions, counties, and crops.</p>
+                </article>
+            </section>
+
+            <section class="feature-grid" id="proposalFeatures">
+                <article class="glass-card feature-card">
+                    <p data-i18n="featureDecisionEyebrow">Decision support</p>
+                    <h2 data-i18n="featureDecisionTitle">Predict harvest timing with farmer-specific input</h2>
+                    <p data-i18n="featureDecisionCopy">
+                        The app uses crop, planting date, county, and farm size details to build a more personal harvest and selling outlook instead of generic farming tips.
+                    </p>
+                </article>
+                <article class="glass-card feature-card">
+                    <p data-i18n="featureMarketEyebrow">Market intelligence</p>
+                    <h2 data-i18n="featureMarketTitle">Combine price history, weather, and selling advice</h2>
+                    <p data-i18n="featureMarketCopy">
+                        Proposal goals around forecasting are reflected through price charts, weather readiness, revenue estimates, and a clear recommendation on the best selling window.
+                    </p>
+                </article>
+                <article class="glass-card feature-card">
+                    <p data-i18n="featureAccessEyebrow">Inclusive access</p>
+                    <h2 data-i18n="featureAccessTitle">Support app users and farmers who rely on SMS</h2>
+                    <p data-i18n="featureAccessCopy">
+                        The experience now highlights bilingual onboarding, GPS-assisted county selection, local dataset fallback, and SMS-ready alerts so support reaches more farmers.
+                    </p>
+                </article>
+            </section>
+
+            <section class="glass-card workflow-card" id="proposalWorkflow">
+                <div class="section-title">
+                    <p data-i18n="workflowEyebrow">Proposal workflow</p>
+                    <h2 data-i18n="workflowTitle">How the Smart Farming Assistant works</h2>
+                </div>
+                <div class="workflow-grid">
+                    <article>
+                        <strong data-i18n="workflowInputTitle">1. Farmer input</strong>
+                        <p data-i18n="workflowInputCopy">Capture crop, planting date, location, and profile details through a simple mobile-first form.</p>
+                    </article>
+                    <article>
+                        <strong data-i18n="workflowEngineTitle">2. Prediction engine</strong>
+                        <p data-i18n="workflowEngineCopy">Blend crop rules, county climate patterns, live weather summaries, and market datasets on the backend.</p>
+                    </article>
+                    <article>
+                        <strong data-i18n="workflowInsightTitle">3. Decision insight</strong>
+                        <p data-i18n="workflowInsightCopy">Return harvest windows, expected revenue, market peaks, and clear selling recommendations with simple charts.</p>
+                    </article>
+                    <article>
+                        <strong data-i18n="workflowReachTitle">4. Inclusive delivery</strong>
+                        <p data-i18n="workflowReachCopy">Prepare message previews and SMS alerts so the same guidance can reach smartphone and basic-phone farmers.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-grid" id="auth">
+                <article class="glass-card planner-card">
+                    <div class="section-title">
+                        <p data-i18n="accountEyebrow">Account</p>
+                        <h2 data-i18n="accountTitle">Create a farmer account</h2>
+                    </div>
+
+                    <form id="registerForm" class="planner-form">
+                        <label>
+                <span>Full name</span>
+                <input type="text" id="registerName" required />
+              </label>
+                        <small class="error-message" id="register-name-error" aria-live="polite"></small>
+                        <label>
+                <span>Email</span>
+                <input type="email" id="registerEmail" required />
+              </label>
+                        <small class="error-message" id="register-email-error" aria-live="polite"></small>
+                        <label>
+                <span>Phone number</span>
+                <input type="tel" id="registerPhone" placeholder="+2547..." />
+              </label>
+                        <small class="error-message" id="register-phone-error" aria-live="polite"></small>
+                        <label>
+                <span>Region</span>
+                <div class="field-with-action">
+                    <select id="registerRegion" data-regions required aria-describedby="register-region-hint"></select>
+                    <button type="button" id="detectLocationRegister" class="secondary-button" title="Detect location using GPS">Use GPS</button>
+                </div>
+                <small id="register-region-hint" class="field-hint">Choose one region first.</small>
+              </label>
+                        <p class="county-preview" id="registerCountyPreview">Select a region to see its counties.</p>
+                        <label>
+                <span>County</span>
+                <select id="registerCounty" data-counties required></select>
+                <small class="field-hint">Choose one county from the selected region.</small>
+              </label>
+                        <small class="error-message" id="register-county-error" aria-live="polite"></small>
+                        <label>
+                <span>Password</span>
+                <input type="password" id="registerPassword" required />
+              </label>
+                        <small class="error-message" id="register-password-error" aria-live="polite"></small>
+                        <button type="submit" class="primary-button full-width" data-i18n="registerButton">Register</button>
+                    </form>
+                </article>
+
+                <article class="glass-card summary-card">
+                    <div class="section-title">
+                        <p data-i18n="dataStatusEyebrow">Data status</p>
+                        <h2 data-i18n="dataStatusTitle">Regions and counties</h2>
+                    </div>
+
+                    <div class="dataset-status-card" id="datasetStatusCard">
+                        <p class="dataset-status-text" id="datasetStatusText">Loading region and county lists...</p>
+                        <div class="dataset-status-grid">
+                            <article>
+                                <span>Source</span>
+                                <strong id="datasetSource">Loading</strong>
+                            </article>
+                            <article>
+                                <span>Regions</span>
+                                <strong id="datasetRegionCount">0</strong>
+                            </article>
+                            <article>
+                                <span>Counties</span>
+                                <strong id="datasetCountyCount">0</strong>
+                            </article>
+                            <article>
+                                <span>Crops</span>
+                                <strong id="datasetCropCount">0</strong>
+                            </article>
+                        </div>
+                        <button type="button" class="secondary-button full-width" id="reloadDatasetsButton" data-i18n="reloadDatasetsButton">Reload region and county lists</button>
+                    </div>
+
+                    <div class="section-title top-gap">
+                        <p data-i18n="signInEyebrow">Sign in</p>
+                        <h2 data-i18n="signInTitle">Access your records</h2>
+                    </div>
+
+                    <form id="loginForm" class="planner-form compact-form">
+                        <label>
+                <span>Email</span>
+                <input type="email" id="loginEmail" required />
+              </label>
+                        <small class="error-message" id="login-email-error" aria-live="polite"></small>
+                        <label>
+                <span>Password</span>
+                <input type="password" id="loginPassword" required />
+              </label>
+                        <small class="error-message" id="login-password-error" aria-live="polite"></small>
+                        <button type="submit" class="primary-button full-width" data-i18n="loginButton">Login</button>
+                    </form>
+
+                    <p id="authMessage" class="auth-message" aria-live="polite" data-i18n="authMessageDefault">Register or sign in to unlock forecasts and records.</p>
+                    <div class="debug-card" id="debugCard">
+                        <div class="section-title">
+                            <p data-i18n="debugEyebrow">Debug</p>
+                            <h2 data-i18n="debugTitle">Auth and API messages</h2>
+                        </div>
+                        <p class="debug-text" id="debugText" aria-live="polite" data-i18n="debugDefault">No debug events yet.</p>
+                    </div>
+                    <button type="button" id="logoutButton" class="secondary-button full-width" data-i18n="logoutButton">Logout</button>
+                </article>
+            </section>
+
+            <section class="section-grid is-hidden" id="planner">
+                <article class="glass-card planner-card">
+                    <div class="section-title">
+                        <p>Profile</p>
+                        <h2>Farmer profile</h2>
+                    </div>
+
+                    <form id="profileForm" class="planner-form compact-form">
+                        <label>
+                <span>Full name</span>
+                <input type="text" id="farmerName" />
+              </label>
+                        <small class="error-message" id="profile-name-error" aria-live="polite"></small>
+                        <label>
+                <span>Email</span>
+                <input type="email" id="farmerEmail" disabled />
+              </label>
+                        <label>
+                <span>Phone number</span>
+                <input type="tel" id="farmerPhone" />
+              </label>
+                        <small class="error-message" id="profile-phone-error" aria-live="polite"></small>
+                        <label>
+                <span>Region</span>
+                <div class="field-with-action">
+                    <select id="farmerRegion" data-regions></select>
+                    <button type="button" id="detectLocationProfile" class="secondary-button" title="Detect location using GPS">Use GPS</button>
+                </div>
+                <small class="field-hint">Choose one region first.</small>
+              </label>
+                        <p class="county-preview" id="farmerCountyPreview">Select a region to see its counties.</p>
+                        <label>
+                <span>Home county</span>
+                <select id="farmerCounty" data-counties></select>
+                <small class="field-hint">Choose one county for this farmer profile.</small>
+              </label>
+                        <button type="submit" class="primary-button full-width">Save profile</button>
+                    </form>
+                </article>
+
+                <article class="glass-card summary-card">
+                    <div class="section-title">
+                        <p>Planting</p>
+                        <h2>Add a planting record</h2>
+                    </div>
+
+                    <div class="map-container">
+                        <p class="field-hint">Click on your farm's location to set region and county automatically.</p>
+                        <div id="farmMap" style="height: 240px; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(49, 92, 57, 0.2);"></div>
+                        <button type="button" id="detectLocationPlanting" class="secondary-button full-width" style="margin-bottom: 1.5rem;">Use my current GPS position</button>
+                    </div>
+
+                    <form id="plantingForm" class="planner-form">
+                        <label>
+                <span>Crop</span>
+                <div class="custom-select-container" id="cropSelectWrapper">
+                    <div class="custom-select-trigger" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-controls="cropOptions">
+                        <span>Select crop</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="custom-select-options is-hidden" id="cropOptions" role="listbox"></div>
+                    <input type="hidden" id="plantingCrop" required />
+                </div>
+                <small id="cropRecommendationHint" class="field-hint is-hidden" style="margin-top: 4px; display: block; background: rgba(49, 92, 57, 0.05); padding: 8px; border-radius: 8px; border-left: 3px solid var(--primary);"></small>
+              </label>
+                        <label>
+                <span>Region</span>
+                <select id="plantingRegion" data-regions required></select>
+                <small class="field-hint">Choose one region first.</small>
+              </label>
+                        <p class="county-preview" id="plantingCountyPreview">Select a region to see its counties.</p>
+                        <label>
+                <span>County</span>
+                <select id="plantingCounty" data-counties required></select>
+                <small class="field-hint">Select the one county where this crop was planted.</small>
+              </label>
+                        <label>
+                <span>Planting date</span>
+                <input type="date" id="plantingDate" required />
+              </label>
+                        <small class="error-message" id="planting-date-error" aria-live="polite"></small>
+                        <label>
+                <span>Farm size (acres)</span>
+                <input type="number" id="farmSize" min="0.25" step="0.25" required />
+              </label>
+                        <small class="error-message" id="farm-size-error" aria-live="polite"></small>
+                        <label>
+                <span>Notes</span>
+                <input type="text" id="plantingNotes" placeholder="Season, seed type, or field notes" />
+              </label>
+                        <div class="form-actions">
+                            <button type="submit" class="primary-button full-width" id="plantingSubmitButton">Save planting and forecast</button>
+                            <button type="button" class="secondary-button full-width" id="clearPlantingFilters">Clear location filters</button>
+                            <button type="button" class="secondary-button full-width is-hidden" id="cancelEditButton">Cancel edit</button>
+                        </div>
+                    </form>
+                    <p class="status-note" id="latestRecord">No planting record saved yet.</p>
+                </article>
+            </section>
+
+            <section class="dashboard-layout is-hidden" id="insights">
+                <article class="glass-card chart-card">
+                    <div class="section-title">
+                        <p>Forecast</p>
+                        <h2>Harvest and selling advice</h2>
+                    </div>
+                    <div class="summary-stack">
+                        <div>
+                            <span class="label">Harvest window</span>
+                            <h3 id="harvestWindow">No forecast yet</h3>
+                        </div>
+                        <div>
+                            <span class="label">Best week to sell</span>
+                            <h3 id="sellWindow">-</h3>
+                        </div>
+                        <div>
+                            <span class="label">Recommendation</span>
+                            <p id="recommendationText">Save a planting record to generate a real forecast.</p>
+                        </div>
+                        <div class="insight-strip">
+                            <article>
+                                <span>Expected yield</span>
+                                <strong id="yieldProjection">-</strong>
+                            </article>
+                            <article>
+                                <span>Expected revenue</span>
+                                <strong id="revenueProjection">-</strong>
+                            </article>
+                        </div>
+                    </div>
+                    <div class="trend-overview">
+                        <article class="trend-stat">
+                            <span class="label">Recent market trend</span>
+                            <strong id="historyTrendValue">-</strong>
+                            <p id="historyTrendText">Recent county price movement will appear after a forecast is generated.</p>
+                        </article>
+                        <article class="trend-stat">
+                            <span class="label">Expected price peak</span>
+                            <strong id="forecastPeakValue">-</strong>
+                            <p id="forecastPeakText">Projected selling advice will appear after a forecast is generated.</p>
+                        </article>
+                    </div>
+                    <div class="chart-grid">
+                        <div class="chart-wrap">
+                            <div class="chart-heading">
+                                <span class="label">Recent market prices</span>
+                                <strong>Historical trend</strong>
+                            </div>
+                            <svg id="historyChart" viewBox="0 0 720 280" aria-label="Historical market price chart"></svg>
+                        </div>
+                        <div class="chart-wrap">
+                            <div class="chart-heading">
+                                <span class="label">Selling outlook</span>
+                                <strong>Projected weekly prices</strong>
+                            </div>
+                            <svg id="priceChart" viewBox="0 0 720 280" aria-label="Forecast price chart"></svg>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <span><i class="legend-dot history"></i> Historical average prices</span>
+                        <span><i class="legend-dot current"></i> Expected prices</span>
+                        <span><i class="legend-dot peak"></i> Best selling point</span>
+                    </div>
+                </article>
+
+                <article class="glass-card weather-card">
+                    <div class="section-title">
+                        <p>Weather</p>
+                        <h2>Field readiness</h2>
+                    </div>
+                    <div class="weather-meter">
+                        <div class="meter-ring">
+                            <div class="meter-inner">
+                                <strong id="weatherScore">--</strong>
+                                <span>Field readiness</span>
+                            </div>
+                        </div>
+                        <div class="weather-copy">
+                            <p id="weatherNarrative">Weather details will appear here after a forecast is generated.</p>
+                            <div class="weather-pills" id="weatherPills"></div>
+                        </div>
+                    </div>
+                    <div class="climate-comparison top-gap">
+                        <span class="label">Climate Match Profile</span>
+                        <svg id="climateChart" viewBox="0 0 400 130" style="width: 100%; height: auto; margin-top: 10px;" aria-label="Climate comparison chart"></svg>
+                    </div>
+                </article>
+
+                <article class="glass-card sms-card">
+                    <div class="section-title">
+                        <p>SMS alert</p>
+                        <h2>Message preview for farmers</h2>
+                    </div>
+                    <div class="sms-phone">
+                        <div class="sms-notch"></div>
+                        <div class="sms-screen">
+                            <p class="sms-meta">Africa's Talking ready</p>
+                            <p id="smsPreview">SMS preview will appear here after login and forecast generation.</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="glass-card market-card">
+                    <div class="section-title">
+                        <p>Nearby markets</p>
+                        <h2>Compare prices by location</h2>
+                    </div>
+                    <p class="market-intro">
+                        Use your current location to sort nearby county markets and quickly compare the latest prices against your selected crop baseline.
+                    </p>
+                    <button type="button" id="locateMarketsButton" class="secondary-button full-width">Use current location</button>
+                    <p class="status-note" id="marketLocationStatus">Location not requested yet.</p>
+                    <div class="market-list" id="nearbyMarketsList">
+                        <article class="market-item empty">
+                            <strong>No nearby markets yet</strong>
+                            <p>Save a planting record, then use your location to compare nearby market prices.</p>
+                        </article>
+                    </div>
+                </article>
+
+                <article class="glass-card highlights-card">
+                    <div class="section-title">
+                        <p>Records</p>
+                        <h2>Historical planting records</h2>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>Crop</th>
+                                    <th>County</th>
+                                    <th>Planting date</th>
+                                    <th>Farm size</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plantingTableBody">
+                                <tr>
+                                    <td colspan="6">No planting records yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="sendSmsButton" class="secondary-button full-width">Send SMS alert</button>
+                </article>
+            </section>
+        </main>
+    </div>
+
+    <div class="chart-tooltip is-hidden" id="chartTooltip" role="status" aria-live="polite"></div>
+
+    <script src="./scripts/location-select.js"></script>
+    <script type="module" src="./scripts/client.js"></script>
+</body>
+
+</html>
