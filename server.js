@@ -425,7 +425,7 @@ const SESSION_CLEANUP_INTERVAL = 60 * 60 * 1000;
 
 initDb(config)
     .then((storage) => {
-        server = app.listen(config.port, () => {
+        server = app.listen(config.port, "0.0.0.0", () => {
             if (storage?.mode === "json" && !warnings.some((warning) => warning.includes("JSON storage"))) {
                 warnings.push("PostgreSQL is unavailable; running with local JSON storage.");
             }
