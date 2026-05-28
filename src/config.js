@@ -9,16 +9,17 @@ function boolFromEnv(value, fallback = false) {
 }
 
 export function getConfig() {
-  const config = {
-    port: Number(process.env.PORT || 3000),
-    nodeEnv: process.env.NODE_ENV || "development",
-    databaseUrl: process.env.DATABASE_URL || "",
-    databaseSsl: boolFromEnv(process.env.DATABASE_SSL, false),
-    storageMode: String(process.env.STORAGE_MODE || "postgres").toLowerCase(),
-    allowStorageFallback: boolFromEnv(
-      process.env.ALLOW_STORAGE_FALLBACK,
-      true
-    ),
+   const config = {
+     port: Number(process.env.PORT || 3000),
+     nodeEnv: process.env.NODE_ENV || "development",
+     baseUrl: process.env.BASE_URL || process.env.APP_BASE_URL || "https://farm-harvest-price-planner.onrender.com",
+     databaseUrl: process.env.DATABASE_URL || "",
+     databaseSsl: boolFromEnv(process.env.DATABASE_SSL, false),
+     storageMode: String(process.env.STORAGE_MODE || "postgres").toLowerCase(),
+     allowStorageFallback: boolFromEnv(
+       process.env.ALLOW_STORAGE_FALLBACK,
+       true
+     ),
     sessionSecret: process.env.SESSION_SECRET || "dev-secret",
     sessionMaxAgeMs: Number(process.env.SESSION_MAX_AGE_MS || 1000 * 60 * 60 * 24 * 7),
     openMeteoBaseUrl:

@@ -32,6 +32,7 @@ import smsScheduler from "./src/sms/smsScheduler.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import { rateLimit } from "express-rate-limit";
+import qrRoutes from "./src/qrRoutes.js";
 
 const __filename = fileURLToPath(
     import.meta.url);
@@ -363,6 +364,9 @@ app.post(
 
 // SMS notification routes
 app.use("/api/sms", smsRoutes);
+
+// QR code routes
+app.use("/api/qr", qrRoutes);
 
 // Swagger documentation
 const swaggerDocument = YAML.load("./swagger.yaml");
