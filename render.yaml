@@ -7,6 +7,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: BASE_URL
+        value: https://farm-harvest-price-planner.onrender.com
       - key: ALLOW_STORAGE_FALLBACK
         value: true
       - key: DATABASE_URL
