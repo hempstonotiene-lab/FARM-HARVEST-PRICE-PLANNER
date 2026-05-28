@@ -17,7 +17,7 @@ export function getConfig() {
     storageMode: String(process.env.STORAGE_MODE || "postgres").toLowerCase(),
     allowStorageFallback: boolFromEnv(
       process.env.ALLOW_STORAGE_FALLBACK,
-      (process.env.NODE_ENV || "development") !== "production"
+      true
     ),
     sessionSecret: process.env.SESSION_SECRET || "dev-secret",
     sessionMaxAgeMs: Number(process.env.SESSION_MAX_AGE_MS || 1000 * 60 * 60 * 24 * 7),

@@ -7,6 +7,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: ALLOW_STORAGE_FALLBACK
+        value: true
       - key: DATABASE_URL
         fromDatabase:
           name: farm-db
